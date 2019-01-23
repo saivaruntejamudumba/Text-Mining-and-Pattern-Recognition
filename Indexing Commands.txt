@@ -1,0 +1,24 @@
+1.First we copy the files of 2009 to titles folder
+
+cp 2009/*.txt titles
+
+2.Then we create the representation of all the files of 2009 and remove the stop words and store them with their frequency by using unix script 
+unixscript.sh
+y=0
+for entry in /home/sm1264/varun/Indexing/titles/*
+do
+        cat "$entry" | tr [A-Z] [a-z] | tr -cs "a-z_" " " | tr " " "\n" | sort | uniq -c | sort -nr > /home/sm1264/varun/Indexing/out/$y.txt
+        ./replacesw.sh /home/sm1264/varun/Indexing/others/sw.txt /home/sm1264/varun/Indexing/out/$y.txt | tr -s "\n" | grep [[:alpha:]] > $entry
+          
+	y=$((y+1))
+done
+
+
+ 
+replace.sh:
+
+#!/bin/bash
+MYREGEX=\\b\(`perl -pe 's/\n/|/g' $1`\)\\b
+perl -pe "s/$MYREGEX//g" $2
+
+Indexing is done by the above following commands

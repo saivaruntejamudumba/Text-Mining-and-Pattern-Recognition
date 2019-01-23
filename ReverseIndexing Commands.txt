@@ -1,0 +1,52 @@
+1.First we merge all the words in titles folder to one file 
+
+ cat titles/*txt > inimerge.txt
+ cat inimerge.txt|uniq > finmerge.txt
+ awk '{ print $2 }' finmerge.txt > mergefinal.txt
+ 
+2. Secondly we swap all the titles files in terms of words : freq
+
+y=0
+for entry in titles/*txt
+do
+ awk '{ print $2 " " $1 }' $entry > temp/$y.txt
+ mv temp/$y.txt $entry
+y=$((y+1))
+done
+ 
+This stores all the words in the titles folder as word:freq
+
+3. Reverse Index
+a.We need to first make an index of titles names to 0.txt, 1.txt ......
+so we use this script to rename the titles with a prefix of the files such as 0.txt,1.txt........
+indexscript.sh
+n=0; for f in titlesindex/*.txt; do mv "$f" "$((n++)).txt_INDEX_OF_$f"; done
+
+b. Then we need to transform the titles with word : freq as in titlesindex to out as 0.txt, 1.txt....
+
+titlestransform.sh
+y=0
+for entry in /home/sm1264/varun/ReverseIndexing/titlesindex/*
+do
+        cat "$entry"  > /home/sm1264/varun/ReverseIndexing/out/$y.txt
+          
+	y=$((y+1))
+done
+
+c Now we search the files in out folder with the mergefinal text
+
+cat mergefinal.txt | sort |uniq > mergesorted.txt
+revindexmainscript.sh
+
+for i in $(</home/sm1264/varun/ReverseIndexing/mergesorted.txt)
+do
+echo  "$i :" >> /home/sm1264/varun/ReverseIndexing/reverseindex3.txt
+grep -rw  $i *| tr ":" " "|awk '{print $1 ":" $3}'|xargs|tr " " ":" >> /home/sm1264/varun/ReverseIndexing/reverseindex3.txt
+done
+
+index of 0.txt-->a.txt is given as
+
+[sm1264@ci-lis-3lb2lq2 titlesindex]$ ls -1 | grep .txt > Indexes.txt
+
+reverse index with 0.txt,1.txt is obtained in reverseindex3.txt
+reverse index with titles names is obtained in reverseindexwithtitlename.txt
